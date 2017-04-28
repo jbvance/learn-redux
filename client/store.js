@@ -15,8 +15,23 @@ const defaultState = {
   //same as saying posts: posts and comments: comments
 };
 
-const store = createStore(rootReducer, defaultState);
+//This allows redux dev tools to work in Chrome
+const enhancers = compose(
+  window.devToolsExtension ? window.devToolsExtension() : f => f
+);
+
+const store = createStore(rootReducer, defaultState, enhancers);
 
 export const history = syncHistoryWithStore(browserHistory, store);
+
+//Allow reducers to be hot reloaded
+if(module.hot) {
+  console.log("MOdule is HOT");
+  module.hot.accept('./reducers/', () => {
+    const nextRootReducer = require('./reducers/index').default;
+    store.replaceReducer(nextRootReducer);
+
+  });
+}
 
 export default store;
